@@ -78,7 +78,7 @@ class App extends Component {
 
   calculateCircleByNumber(num) {
     let left = 0;
-    const diff = this.selectorWidth - (this.instanceWidth + 1 / 2);
+    const diff = this.getSelectorDifference();
     const diffMax = this.instanceWidth + 2 / 2;
 
     if (this.min < 0) {
