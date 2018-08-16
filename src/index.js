@@ -79,6 +79,8 @@ class App extends Component {
   calculateCircleByNumber(num) {
     let left = 0;
     const diff = this.selectorWidth - (this.instanceWidth + 1 / 2);
+    const diffMax = this.instanceWidth + 2 / 2;
+
     if (this.min < 0) {
       left = ((num - this.min) * diff) / (this.max - this.min);
     } else if (this.min > 0) {
@@ -90,7 +92,7 @@ class App extends Component {
 
     if (parseFloat(value) >= this.max) {
       value = this.max;
-      left = this.selectorWidth - (this.instanceWidth + 2 / 2);
+      left = this.selectorWidth - diffMax;
     }
 
     if (parseInt(value, 10) > this.min) {
@@ -107,26 +109,25 @@ class App extends Component {
     }
   }
 
+  getSelectorDifference() {
+    return this.selectorWidth - (this.instanceWidth + 2 / 2);
+  }
+
   calculateCircle(clientX) {
+    const diff = this.getSelectorDifference();
+
     let left = clientX - this.selectorLeft + this.state.offset[0];
     let value = 0;
     if (this.min === 0) {
-      value =
-        (left * this.max) / (this.selectorWidth - (this.instanceWidth + 2 / 2));
+      value = (left * this.max) / diff;
     } else if (this.min > 0) {
-      value =
-        (left * (this.max - this.min)) /
-          (this.selectorWidth - (this.instanceWidth + 2 / 2)) +
-        this.min;
+      value = (left * (this.max - this.min)) / diff + this.min;
     } else if (this.min < 0) {
-      value =
-        (left * (this.max + Math.abs(this.min))) /
-          (this.selectorWidth - (this.instanceWidth + 2 / 2)) +
-        this.min;
+      value = (left * (this.max + Math.abs(this.min))) / diff + this.min;
     }
     value = value.toFixed(2);
     if (parseFloat(value) >= this.max) {
-      left = this.selectorWidth - (this.instanceWidth + 2 / 2);
+      left = diff;
       value = this.max;
     }
 
