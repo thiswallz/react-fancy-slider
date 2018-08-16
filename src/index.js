@@ -2,10 +2,13 @@ import React, {Component} from 'react';
 import {render} from 'react-dom';
 import Hello from './Hello';
 import './style.scss';
+
 //TODO Fixed and Popup style w accept round botton in the corner
+
 class App extends Component {
   constructor() {
     super();
+
     this.initialFigureWith = 0;
     this.leftFigure = 0;
     this.figureInstanceWidth = 0;
@@ -29,7 +32,6 @@ class App extends Component {
     this.handleMousedown = this.handleMousedown.bind(this);
     this.handleMousemove = this.handleMousemove.bind(this);
     this.handleMouseleave = this.handleMouseleave.bind(this);
-
     this.handleClickStepSubstract = this.handleClickStepSubstract.bind(this);
     this.handleClickStepAdd = this.handleClickStepAdd.bind(this);
   }
@@ -76,25 +78,16 @@ class App extends Component {
 
   calculateCircleByNumber(num) {
     let left = 0;
+    const diff = this.selectorWidth - (this.instanceWidth + 1 / 2);
     if (this.min < 0) {
-      left =
-        ((num - this.min) *
-          (this.selectorWidth - (this.instanceWidth + 1 / 2))) /
-        (this.max - this.min);
+      left = ((num - this.min) * diff) / (this.max - this.min);
     } else if (this.min > 0) {
-      left =
-        ((num - this.min) *
-          (this.selectorWidth - (this.instanceWidth + 1 / 2))) /
-        (this.max - this.min);
-      console.log(num, left);
+      left = ((num - this.min) * diff) / (this.max - this.min);
     } else if (this.min === 0) {
-      left =
-        (num * (this.selectorWidth - (this.instanceWidth + 1 / 2))) / this.max;
+      left = (num * diff) / this.max;
     }
+    let value = num.toFixed(2);
 
-    let value = num;
-
-    value = value.toFixed(2);
     if (parseFloat(value) >= this.max) {
       value = this.max;
       left = this.selectorWidth - (this.instanceWidth + 2 / 2);
