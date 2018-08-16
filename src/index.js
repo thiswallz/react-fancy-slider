@@ -187,7 +187,6 @@ class App extends Component {
   }
 
   render() {
-    // OPTIMIZE
     this.figureInstance && this.computeFigure();
     return (
       <div className="fancy-slider">
