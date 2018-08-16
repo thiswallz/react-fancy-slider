@@ -2,8 +2,8 @@ import React, {Component} from 'react';
 import {render} from 'react-dom';
 import Hello from './Hello';
 import './style.scss';
-
-class FancySlider extends Component {
+//TODO Fixed and Popup style w accept round botton in the corner
+class App extends Component {
   constructor() {
     super();
     this.initialFigureWith = 0;
@@ -13,13 +13,14 @@ class FancySlider extends Component {
     this.selectorWidth = 0;
     this.lfigureWidth = 0;
     this.rfigureWidth = 0;
+    this.step = 2;
+    this.max = 50;
+    this.min = -10;
 
     this.state = {
-      max: 200,
-      min: 100,
       name: 'Slider',
       offset: [0, 0],
-      value: -20,
+      value: this.min,
       left: 0,
       isDown: false,
       figureDisplay: 'hidden',
@@ -28,6 +29,17 @@ class FancySlider extends Component {
     this.handleMousedown = this.handleMousedown.bind(this);
     this.handleMousemove = this.handleMousemove.bind(this);
     this.handleMouseleave = this.handleMouseleave.bind(this);
+
+    this.handleClickStepSubstract = this.handleClickStepSubstract.bind(this);
+    this.handleClickStepAdd = this.handleClickStepAdd.bind(this);
+  }
+
+  handleClickStepAdd() {
+    this.calculateCircleByNumber(this.step + parseFloat(this.state.value));
+  }
+
+  handleClickStepSubstract() {
+    this.calculateCircleByNumber(parseFloat(this.state.value) - this.step);
   }
 
   componentDidMount() {
@@ -37,12 +49,12 @@ class FancySlider extends Component {
     this.setState({
       leftFigure: -(this.figureInstanceWidth / 2) + diff,
     });
-    console.log(null, this.lfigureWidth);
   }
 
   calculateWidths() {
     this.figureInstanceWidth = this.figureInstance.getBoundingClientRect().width;
     this.instanceWidth = this.instance.getBoundingClientRect().width;
+    this.selectorLeft = this.selectorInstance.getBoundingClientRect().left;
     this.selectorWidth = this.selectorInstance.getBoundingClientRect().width;
     this.lfigureWidth = this.lfigureInstance.getBoundingClientRect().width;
     this.rfigureWidth = this.rfigureInstance.getBoundingClientRect().width;
@@ -51,63 +63,96 @@ class FancySlider extends Component {
   handleMouseup(e) {
     this.setState({
       isDown: false,
-      figureDisplay: 'hidden',
+      //figureDisplay: 'hidden',
     });
   }
 
   handleMouseleave(e) {
     this.setState({
       isDown: false,
-      figureDisplay: 'hidden',
+      //figureDisplay: 'hidden',
     });
+  }
+
+  calculateCircleByNumber(num) {
+    let left = 0;
+    if (this.min < 0) {
+      left =
+        ((num - this.min) *
+          (this.selectorWidth - (this.instanceWidth + 1 / 2))) /
+        (this.max - this.min);
+      console.log(left);
+    } else if (this.min > 0) {
+      left =
+        (num * (this.selectorWidth - (this.instanceWidth + 1 / 2))) /
+        (this.max - this.min);
+    } else if (this.min === 0) {
+      left =
+        (num * (this.selectorWidth - (this.instanceWidth + 1 / 2))) / this.max;
+    }
+
+    let value = num;
+
+    value = value.toFixed(2);
+    if (parseFloat(value) >= this.max) {
+      value = this.max;
+      left = this.selectorWidth - (this.instanceWidth + 2 / 2);
+    }
+
+    if (parseInt(value, 10) > this.min) {
+      this.setState({
+        figureDisplay: 'visible',
+        value: value,
+        left,
+      });
+    } else {
+      this.setState({
+        value: this.min,
+        left: 0,
+      });
+    }
+  }
+
+  calculateCircle(clientX) {
+    let left = clientX - this.selectorLeft + this.state.offset[0];
+    let value = 0;
+    if (this.min === 0) {
+      value =
+        (left * this.max) / (this.selectorWidth - (this.instanceWidth + 2 / 2));
+    } else if (this.min > 0) {
+      value =
+        (left * (this.max - this.min)) /
+          (this.selectorWidth - (this.instanceWidth + 2 / 2)) +
+        this.min;
+    } else if (this.min < 0) {
+      value =
+        (left * (this.max + Math.abs(this.min))) /
+          (this.selectorWidth - (this.instanceWidth + 2 / 2)) +
+        this.min;
+    }
+    value = value.toFixed(2);
+    if (parseFloat(value) >= this.max) {
+      left = this.selectorWidth - (this.instanceWidth + 2 / 2);
+      value = this.max;
+    }
+
+    if (parseInt(value, 10) > this.min) {
+      this.setState({
+        figureDisplay: 'visible',
+        value: value,
+        left,
+      });
+    } else {
+      this.setState({
+        value: this.min,
+        left: 0,
+      });
+    }
   }
 
   compute(e) {
     this.calculateWidths();
-    let left =
-      e.clientX -
-      this.selectorInstance.getBoundingClientRect().left +
-      this.state.offset[0];
-
-    let value = 0;
-
-    if (this.state.min === 0) {
-      value =
-        (left * this.state.max) /
-        (this.selectorWidth - (this.instanceWidth + 2 / 2));
-    } else if (this.state.min > 0) {
-      value =
-        (left * (this.state.max - this.state.min)) /
-          (this.selectorWidth - (this.instanceWidth + 2 / 2)) +
-        this.state.min;
-    } else if (this.state.min < 0) {
-      value =
-        (left * (this.state.max + Math.abs(this.state.min))) /
-          (this.selectorWidth - (this.instanceWidth + 2 / 2)) +
-        this.state.min;
-    }
-
-    value = value.toFixed(2);
-
-    if (parseFloat(value) >= this.state.max) {
-      left = this.selectorWidth - (this.instanceWidth + 2 / 2);
-      value = this.state.max;
-      console.log(2);
-    }
-
-    if (parseInt(value, 10) > this.state.min) {
-      this.setState({
-        figureDisplay: 'visible',
-        value: value,
-        left: left,
-      });
-    } else {
-      console.log(1);
-      this.setState({
-        value: this.state.min,
-        left: 0,
-      });
-    }
+    this.calculateCircle(e.clientX);
   }
 
   computeFigure() {
@@ -116,8 +161,7 @@ class FancySlider extends Component {
     const diff = this.instanceWidth / 2 + 1;
     fleft =
       this.state.left - this.figureInstanceWidth / 2 + this.instanceWidth / 2;
-    console.log(this.figureInstanceWidth, this.initialFigureWith);
-    if (parseInt(this.state.value, 10) > this.state.min) {
+    if (parseInt(this.state.value, 10) > this.min) {
       this.leftFigure = parseFloat(fleft);
     } else {
       this.leftFigure = -(this.initialFigureWith / 2) + diff;
@@ -144,13 +188,18 @@ class FancySlider extends Component {
   render() {
     this.figureInstance && this.computeFigure();
     return (
-      <div>
+      <div className="fancy-slider">
         {this.state.value}
         <div
           onMouseMove={this.handleMousemove}
           onMouseUp={this.handleMouseup}
           onMouseLeave={this.handleMouseleave}
           className="selector">
+          <div
+            className="triangle-left"
+            onClick={this.handleClickStepSubstract}
+          />
+          <div className="triangle-right" onClick={this.handleClickStepAdd} />
           <div
             ref={el => (this.selectorInstance = el)}
             className="selector-inner">
@@ -162,7 +211,7 @@ class FancySlider extends Component {
                   : this.lfigureWidth / 2),
               }}
               className="lfigure">
-              {this.state.min}
+              {this.min}
             </div>
             <div
               ref={el => (this.rfigureInstance = el)}
@@ -172,7 +221,7 @@ class FancySlider extends Component {
                   : this.rfigureWidth / 2),
               }}
               className="rfigure">
-              {this.state.max}
+              {this.max}
             </div>
             <div className="line" />
             <div className="lef-line" />
@@ -201,4 +250,4 @@ class FancySlider extends Component {
   }
 }
 
-export default FancySlider;
+render(<App />, document.getElementById('root'));
