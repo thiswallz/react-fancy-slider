@@ -15,7 +15,7 @@ class App extends Component {
     this.rfigureWidth = 0;
     this.step = 2;
     this.max = 50;
-    this.min = -10;
+    this.min = 10;
 
     this.state = {
       name: 'Slider',
@@ -81,11 +81,12 @@ class App extends Component {
         ((num - this.min) *
           (this.selectorWidth - (this.instanceWidth + 1 / 2))) /
         (this.max - this.min);
-      console.log(left);
     } else if (this.min > 0) {
       left =
-        (num * (this.selectorWidth - (this.instanceWidth + 1 / 2))) /
+        ((num - this.min) *
+          (this.selectorWidth - (this.instanceWidth + 1 / 2))) /
         (this.max - this.min);
+      console.log(num, left);
     } else if (this.min === 0) {
       left =
         (num * (this.selectorWidth - (this.instanceWidth + 1 / 2))) / this.max;
