@@ -1,5 +1,5 @@
-import React, {Component} from 'react';
-import {render} from 'react-dom';
+import React, { Component } from 'react';
+import { render } from 'react-dom';
 import Hello from './Hello';
 import './style.scss';
 
@@ -113,10 +113,8 @@ class App extends Component {
     return this.selectorWidth - (this.instanceWidth + 2 / 2);
   }
 
-  calculateCircle(clientX) {
-    const diff = this.getSelectorDifference();
-
-    let left = clientX - this.selectorLeft + this.state.offset[0];
+  calculateCircle(clientWindowX, diff) {
+    let left = clientWindowX - this.selectorLeft + this.state.offset[0];
     let value = 0;
     if (this.min === 0) {
       value = (left * this.max) / diff;
@@ -132,22 +130,25 @@ class App extends Component {
     }
 
     if (parseInt(value, 10) > this.min) {
-      this.setState({
+      return {
         figureDisplay: 'visible',
-        value: value,
+        value,
         left,
-      });
+      };
     } else {
-      this.setState({
+      return {
         value: this.min,
         left: 0,
-      });
+      };
     }
   }
 
   compute(e) {
     this.calculateWidths();
-    this.calculateCircle(e.clientX);
+    const diff = this.getSelectorDifference();
+    this.setState({
+      ...this.calculateCircle(e.clientX, diff)
+    });
   }
 
   computeFigure() {
@@ -234,7 +235,7 @@ class App extends Component {
             </div>
             <span
               ref={el => (this.instance = el)}
-              style={{left: this.state.left}}
+              style={{ left: this.state.left }}
               className="point"
               onMouseDown={this.handleMousedown}
             />
@@ -246,3 +247,4 @@ class App extends Component {
 }
 
 render(<App />, document.getElementById('root'));
+
