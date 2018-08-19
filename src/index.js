@@ -1,13 +1,45 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import Hello from './Hello';
-import './style.scss';
+import PropTypes from 'prop-types';
+import './fancy-slider.scss';
 
-//TODO Fixed and Popup style w accept round botton in the corner
+function noOp() { }
 
-class App extends Component {
-  constructor() {
-    super();
+export default class FancySlider extends Component {
+
+  static propTypes = {
+    min: PropTypes.number,
+    max: PropTypes.number,
+    step: PropTypes.number,
+    value: PropTypes.number,
+    onChange: PropTypes.func,
+    showAlwaysValue: PropTypes.bool,
+    disableTrack: PropTypes.bool,
+    sliderColor: PropTypes.string,
+    trackColor: PropTypes.string,
+    thumbColor: PropTypes.string,
+    sliderWidth: PropTypes.number,
+    thumbSize: PropTypes.number,
+    id: PropTypes.string,
+  }
+
+  static defaultProps = {
+    min: 0,
+    value: 50,
+    max: 100,
+    step: 10,
+    onChange: noOp,
+    showAlwaysValue: true,
+    disable: true,
+    sliderColor: '#B9B9B9',
+    trackColor: '#009688',
+    thumbColor: '#009688',
+    sliderSize: 300,
+    id: null,
+  }
+
+  constructor(props) {
+    super(props);
 
     this.initialFigureWith = 0;
     this.leftFigure = 0;
@@ -16,18 +48,18 @@ class App extends Component {
     this.selectorWidth = 0;
     this.lfigureWidth = 0;
     this.rfigureWidth = 0;
-    this.step = 2;
-    this.max = 50;
-    this.min = 10;
 
     this.state = {
-      name: 'Slider',
+      max: this.props.max,
+      min: this.props.min,
+      step: this.props.step,
+      value: this.props.value,
       offset: [0, 0],
-      value: this.min,
       left: 0,
       isDown: false,
-      figureDisplay: 'hidden',
+      figureDisplay: 'hidden'
     };
+
     this.handleMouseup = this.handleMouseup.bind(this);
     this.handleMousedown = this.handleMousedown.bind(this);
     this.handleMousemove = this.handleMousemove.bind(this);
@@ -37,131 +69,12 @@ class App extends Component {
   }
 
   handleClickStepAdd() {
-    this.calculateCircleByNumber(this.step + parseFloat(this.state.value));
+    this.setValue(this.getCirclePositionByValue(this.state.step + parseFloat(this.state.value)));
+
   }
 
   handleClickStepSubstract() {
-    this.calculateCircleByNumber(parseFloat(this.state.value) - this.step);
-  }
-
-  componentDidMount() {
-    this.calculateWidths();
-    const diff = this.instanceWidth / 2 + 1;
-    this.initialFigureWith = this.figureInstanceWidth;
-    this.setState({
-      leftFigure: -(this.figureInstanceWidth / 2) + diff,
-    });
-  }
-
-  calculateWidths() {
-    this.figureInstanceWidth = this.figureInstance.getBoundingClientRect().width;
-    this.instanceWidth = this.instance.getBoundingClientRect().width;
-    this.selectorLeft = this.selectorInstance.getBoundingClientRect().left;
-    this.selectorWidth = this.selectorInstance.getBoundingClientRect().width;
-    this.lfigureWidth = this.lfigureInstance.getBoundingClientRect().width;
-    this.rfigureWidth = this.rfigureInstance.getBoundingClientRect().width;
-  }
-
-  handleMouseup(e) {
-    this.setState({
-      isDown: false,
-      //figureDisplay: 'hidden',
-    });
-  }
-
-  handleMouseleave(e) {
-    this.setState({
-      isDown: false,
-      //figureDisplay: 'hidden',
-    });
-  }
-
-  calculateCircleByNumber(num) {
-    let left = 0;
-    const diff = this.getSelectorDifference();
-    const diffMax = this.instanceWidth + 2 / 2;
-
-    if (this.min < 0) {
-      left = ((num - this.min) * diff) / (this.max - this.min);
-    } else if (this.min > 0) {
-      left = ((num - this.min) * diff) / (this.max - this.min);
-    } else if (this.min === 0) {
-      left = (num * diff) / this.max;
-    }
-    let value = num.toFixed(2);
-
-    if (parseFloat(value) >= this.max) {
-      value = this.max;
-      left = this.selectorWidth - diffMax;
-    }
-
-    if (parseInt(value, 10) > this.min) {
-      this.setState({
-        figureDisplay: 'visible',
-        value: value,
-        left,
-      });
-    } else {
-      this.setState({
-        value: this.min,
-        left: 0,
-      });
-    }
-  }
-
-  getSelectorDifference() {
-    return this.selectorWidth - (this.instanceWidth + 2 / 2);
-  }
-
-  calculateCircle(clientWindowX, diff) {
-    let left = clientWindowX - this.selectorLeft + this.state.offset[0];
-    let value = 0;
-    if (this.min === 0) {
-      value = (left * this.max) / diff;
-    } else if (this.min > 0) {
-      value = (left * (this.max - this.min)) / diff + this.min;
-    } else if (this.min < 0) {
-      value = (left * (this.max + Math.abs(this.min))) / diff + this.min;
-    }
-    value = value.toFixed(2);
-    if (parseFloat(value) >= this.max) {
-      left = diff;
-      value = this.max;
-    }
-
-    if (parseInt(value, 10) > this.min) {
-      return {
-        figureDisplay: 'visible',
-        value,
-        left,
-      };
-    } else {
-      return {
-        value: this.min,
-        left: 0,
-      };
-    }
-  }
-
-  compute(e) {
-    this.calculateWidths();
-    const diff = this.getSelectorDifference();
-    this.setState({
-      ...this.calculateCircle(e.clientX, diff)
-    });
-  }
-
-  computeFigure() {
-    this.calculateWidths();
-    let fleft = 0;
-    const diff = this.instanceWidth / 2 + 1;
-    fleft =
-      this.state.left - this.figureInstanceWidth / 2 + this.instanceWidth / 2;
-    if (parseInt(this.state.value, 10) > this.min) {
-      this.leftFigure = parseFloat(fleft);
-    } else {
-      this.leftFigure = -(this.initialFigureWith / 2) + diff;
-    }
+    this.setValue(this.getCirclePositionByValue(parseFloat(this.state.value) - this.state.step));
   }
 
   handleMousemove(e) {
@@ -181,10 +94,152 @@ class App extends Component {
     });
   }
 
+  handleMouseup(e) {
+    this.hideIt()
+  }
+
+  handleMouseleave(e) {
+    this.hideIt()
+  }
+
+  hideIt() {
+    this.setState({
+      isDown: false,
+      figureDisplay: this.props.showAlwaysValue === false ? 'hidden' : 'visible'
+    });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    this.props.onChange(prevState.value);
+  }
+
+  componentDidMount() {
+    this.calculateWidths();
+    const diff = this.instanceWidth / 2 + 1;
+    this.initialFigureWith = this.figureInstanceWidth;
+    this.setState({
+      leftFigure: -(this.figureInstanceWidth / 2) + diff,
+    });
+    this.setState({ ...this.getCirclePositionByValue(this.state.value) })
+  }
+
+  getSelectorDifference = () => this.selectorWidth - (this.instanceWidth + 2 / 2);
+
+  getCirclePositionByValue(newValue) {
+    let left = 0;
+    const diff = this.getSelectorDifference();
+    const diffMax = this.instanceWidth + 2 / 2;
+
+    if (this.state.min < 0) {
+      left = ((newValue - this.state.min) * diff) / (this.state.max - this.state.min);
+    } else if (this.state.min > 0) {
+      left = ((newValue - this.state.min) * diff) / (this.state.max - this.state.min);
+    } else if (this.state.min === 0) {
+      left = (newValue * diff) / this.state.max;
+    }
+    let value = newValue.toFixed(2);
+
+    if (parseFloat(value) >= this.state.max) {
+      value = this.state.max;
+      left = this.selectorWidth - diffMax;
+    }
+
+    if (parseInt(value, 10) > this.state.min) {
+      return {
+        figureDisplay: 'visible',
+        value,
+        left
+      };
+    } else {
+      return {
+        value: this.state.min,
+        left: 0,
+      };
+    }
+  }
+
+  getCirclePositionByMouseX(clientWindowX, diff) {
+    let left = clientWindowX - this.selectorLeft + this.state.offset[0];
+    let value = 0;
+    if (this.state.min === 0) {
+      value = (left * this.state.max) / diff;
+    } else if (this.state.min > 0) {
+      value = (left * (this.state.max - this.state.min)) / diff + this.state.min;
+    } else if (this.state.min < 0) {
+      value = (left * (this.state.max + Math.abs(this.state.min))) / diff + this.state.min;
+    }
+    value = value.toFixed(2);
+    if (parseFloat(value) >= this.state.max) {
+      left = diff;
+      value = this.state.max;
+    }
+
+    if (parseInt(value, 10) > this.state.min) {
+      return {
+        figureDisplay: 'visible',
+        value,
+        left,
+      };
+    } else {
+      return {
+        value: this.state.min,
+        left: 0,
+      };
+    }
+  }
+
+  getNewState = (newState) => this.props.disable === false ? newState : {};
+
+  setValue(state) {
+    this.setState({
+      ...this.getNewState(state)
+    });
+  }
+
+  compute(e) {
+    this.calculateWidths();
+    const diff = this.getSelectorDifference();
+    this.setValue(this.getCirclePositionByMouseX(e.clientX, diff));
+  }
+
+  computeFigure() {
+    this.calculateWidths();
+    const diff = this.instanceWidth / 2 + 1;
+    const fleft =
+      this.state.left - this.figureInstanceWidth / 2 + this.instanceWidth / 2;
+    if (parseInt(this.state.value, 10) >= this.state.max) {
+      this.leftFigure = this.getSelectorDifference() - diff;
+    } else if (parseInt(this.state.value, 10) > this.state.min) {
+      this.leftFigure = parseFloat(fleft);
+    } else {
+      this.leftFigure = -(this.initialFigureWith / 2) + diff;
+    }
+
+  }
+
+  calculateWidths() {
+    this.figureInstanceWidth = this.figureInstance.getBoundingClientRect().width;
+    this.instanceWidth = this.instance.getBoundingClientRect().width;
+
+    this.selectorLeft = this.selectorInstance.getBoundingClientRect().left;
+    this.selectorWidth = this.selectorInstance.getBoundingClientRect().width;
+
+    this.lfigureWidth = this.lfigureInstance.getBoundingClientRect().width;
+    this.rfigureWidth = this.rfigureInstance.getBoundingClientRect().width;
+  }
+
   render() {
     this.figureInstance && this.computeFigure();
+
+    const {
+      sliderSize,
+      disable,
+      trackColor,
+      thumbColor,
+    } = this.props;
+
     return (
-      <div className="fancy-slider">
+      <div className="fancy-slider" {...this.props.sliderProps}>
         {this.state.value}
         <div
           onMouseMove={this.handleMousemove}
@@ -207,7 +262,7 @@ class App extends Component {
                   : this.lfigureWidth / 2),
               }}
               className="lfigure">
-              {this.min}
+              {this.state.min}
             </div>
             <div
               ref={el => (this.rfigureInstance = el)}
@@ -217,7 +272,7 @@ class App extends Component {
                   : this.rfigureWidth / 2),
               }}
               className="rfigure">
-              {this.max}
+              {this.state.max}
             </div>
             <div className="line" />
             <div className="lef-line" />
@@ -246,5 +301,5 @@ class App extends Component {
   }
 }
 
-render(<App />, document.getElementById('root'));
+
 
