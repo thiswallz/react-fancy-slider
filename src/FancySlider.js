@@ -1,11 +1,12 @@
-import React, {Component} from 'react';
-import {render} from 'react-dom';
+import React, { Component } from 'react';
+import { render } from 'react-dom';
 import PropTypes from 'prop-types';
 import './fancy-slider.scss';
 
-function noOp() {}
+function noOp() { }
 
 export default class FancySlider extends Component {
+
   static propTypes = {
     min: PropTypes.number,
     max: PropTypes.number,
@@ -20,7 +21,7 @@ export default class FancySlider extends Component {
     sliderWidth: PropTypes.number,
     thumbSize: PropTypes.number,
     id: PropTypes.string,
-  };
+  }
 
   static defaultProps = {
     min: 0,
@@ -35,7 +36,7 @@ export default class FancySlider extends Component {
     thumbColor: '#009688',
     sliderSize: 300,
     id: null,
-  };
+  }
 
   constructor(props) {
     super(props);
@@ -56,7 +57,7 @@ export default class FancySlider extends Component {
       offset: [0, 0],
       left: 0,
       isDown: false,
-      figureDisplay: 'hidden',
+      figureDisplay: 'hidden'
     };
 
     this.handleMouseup = this.handleMouseup.bind(this);
@@ -68,19 +69,11 @@ export default class FancySlider extends Component {
   }
 
   handleClickStepAdd() {
-    this.setValue(
-      this.getCirclePositionByValue(
-        this.state.step + parseFloat(this.state.value),
-      ),
-    );
+    this.setValue(this.getCirclePositionByValue(this.state.step + parseFloat(this.state.value)));
   }
 
   handleClickStepSubstract() {
-    this.setValue(
-      this.getCirclePositionByValue(
-        parseFloat(this.state.value) - this.state.step,
-      ),
-    );
+    this.setValue(this.getCirclePositionByValue(parseFloat(this.state.value) - this.state.step));
   }
 
   handleMousemove(e) {
@@ -101,18 +94,17 @@ export default class FancySlider extends Component {
   }
 
   handleMouseup(e) {
-    this.hideIt();
+    this.hideIt()
   }
 
   handleMouseleave(e) {
-    this.hideIt();
+    this.hideIt()
   }
 
   hideIt() {
     this.setState({
       isDown: false,
-      figureDisplay:
-        this.props.showAlwaysValue === false ? 'hidden' : 'visible',
+      figureDisplay: this.props.showAlwaysValue === false ? 'hidden' : 'visible'
     });
   }
 
@@ -127,11 +119,16 @@ export default class FancySlider extends Component {
     this.setState({
       leftFigure: -(this.figureInstanceWidth / 2) + diff,
     });
-    this.setState({...this.getCirclePositionByValue(this.state.value)});
+    this.setState({ ...this.getCirclePositionByValue(this.state.value) })
+
+     if (this.props.onChange.name === 'noOp') {
+      console.warn(
+        `A react-simple-range component was not provided an onChange prop.
+        \nRecommend passing down a function as onChange else this component is purely cosmetic`);
+    }
   }
 
-  getSelectorDifference = () =>
-    this.selectorWidth - (this.instanceWidth + 2 / 2);
+  getSelectorDifference = () => this.selectorWidth - (this.instanceWidth + 2 / 2);
 
   getCirclePositionByValue(newValue) {
     let left = 0;
@@ -139,13 +136,9 @@ export default class FancySlider extends Component {
     const diffMax = this.instanceWidth + 2 / 2;
 
     if (this.state.min < 0) {
-      left =
-        ((newValue - this.state.min) * diff) /
-        (this.state.max - this.state.min);
+      left = ((newValue - this.state.min) * diff) / (this.state.max - this.state.min);
     } else if (this.state.min > 0) {
-      left =
-        ((newValue - this.state.min) * diff) /
-        (this.state.max - this.state.min);
+      left = ((newValue - this.state.min) * diff) / (this.state.max - this.state.min);
     } else if (this.state.min === 0) {
       left = (newValue * diff) / this.state.max;
     }
@@ -160,7 +153,7 @@ export default class FancySlider extends Component {
       return {
         figureDisplay: 'visible',
         value,
-        left,
+        left
       };
     } else {
       return {
@@ -176,12 +169,9 @@ export default class FancySlider extends Component {
     if (this.state.min === 0) {
       value = (left * this.state.max) / diff;
     } else if (this.state.min > 0) {
-      value =
-        (left * (this.state.max - this.state.min)) / diff + this.state.min;
+      value = (left * (this.state.max - this.state.min)) / diff + this.state.min;
     } else if (this.state.min < 0) {
-      value =
-        (left * (this.state.max + Math.abs(this.state.min))) / diff +
-        this.state.min;
+      value = (left * (this.state.max + Math.abs(this.state.min))) / diff + this.state.min;
     }
     value = value.toFixed(2);
     if (parseFloat(value) >= this.state.max) {
@@ -203,11 +193,11 @@ export default class FancySlider extends Component {
     }
   }
 
-  getNewState = newState => (this.props.disable === false ? newState : {});
+  getNewState = (newState) => this.props.disable === false ? newState : {};
 
   setValue(state) {
     this.setState({
-      ...this.getNewState(state),
+      ...this.getNewState(state)
     });
   }
 
@@ -229,6 +219,7 @@ export default class FancySlider extends Component {
     } else {
       this.leftFigure = -(this.initialFigureWith / 2) + diff;
     }
+
   }
 
   calculateWidths() {
@@ -245,18 +236,23 @@ export default class FancySlider extends Component {
   render() {
     this.figureInstance && this.computeFigure();
 
-    const {sliderSize, disable, trackColor, thumbColor} = this.props;
+    const {
+      sliderSize,
+      disable,
+      trackColor,
+      thumbColor,
+    } = this.props;
 
     const pointStyle = {
-      cursor: 'pointer',
-      zIndex: '200',
-      height: '10px',
-      width: '10px',
-      position: 'absolute',
-      top: '31px',
-      backgroundColor: thumbColor,
-      borderRadius: '100%',
-      boxShadow: '0 0 0 2px #1d1d1d',
+     cursor: 'pointer',
+     zIndex:'200',
+     height: '10px',
+     width: '10px',
+     position:'absolute',
+     top:'31px',
+     backgroundColor: thumbColor,
+     borderRadius: '100%',
+     boxShadow: '0 0 0 2px #1d1d1d'
     };
 
     return (
@@ -311,7 +307,7 @@ export default class FancySlider extends Component {
             </div>
             <span
               ref={el => (this.instance = el)}
-              style={{left: this.state.left, ...pointStyle}}
+              style={{ left: this.state.left, ...pointStyle }}
               onMouseDown={this.handleMousedown}
             />
           </div>
@@ -320,3 +316,6 @@ export default class FancySlider extends Component {
     );
   }
 }
+
+
+
